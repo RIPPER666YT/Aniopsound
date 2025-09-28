@@ -630,7 +630,7 @@
 
         // Функция для копирования кода встраивания
         function copyEmbedCode() {
-            let embedSrc = "https://ripper666yt.github.io/aniopsound/index.html";
+            let embedSrc = "https://ripper666yt.github.io/aniopsound/player.html";
             if (isSingle && trackId) {
                 embedSrc += `?id=${trackId}`;
             }
@@ -643,7 +643,7 @@
         // Функция для поделиться текущим треком (копирует iframe код)
         function shareCurrentTrack() {
             const currentTrack = tracks[currentTrackIndex];
-            const url = `https://ripper666yt.github.io/aniopsound/index.html?id=${currentTrack.id}`;
+            const url = `https://ripper666yt.github.io/aniopsound/player.html?id=${currentTrack.id}`;
             const embedCode = `<iframe src="${url}" width="350" height="600" frameborder="0"></iframe>`;
             navigator.clipboard.writeText(embedCode).then(() => {
                 alert('Код встраивания трека скопирован в буфер обмена!');
