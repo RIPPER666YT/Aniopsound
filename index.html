@@ -640,12 +640,13 @@
             });
         }
 
-        // Функция для поделиться текущим треком (копирует ссылку)
+        // Функция для поделиться текущим треком (копирует iframe код)
         function shareCurrentTrack() {
             const currentTrack = tracks[currentTrackIndex];
             const url = `https://ripper666yt.github.io/aniopsound/player.html?id=${currentTrack.id}`;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('Ссылка на трек скопирована в буфер обмена!');
+            const embedCode = `<iframe src="${url}" width="350" height="600" frameborder="0"></iframe>`;
+            navigator.clipboard.writeText(embedCode).then(() => {
+                alert('Код встраивания трека скопирован в буфер обмена!');
             });
         }
 
