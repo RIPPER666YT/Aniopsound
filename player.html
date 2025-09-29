@@ -41,7 +41,7 @@
         
         .player-container.inline {
             flex-direction: row;
-            max-width: 600px;
+            max-width: 500px;
             align-items: flex-start;
             gap: 20px;
         }
@@ -349,7 +349,7 @@
         let currentIndex = 0;
         let previousVolume = 0.7;
         
-        if (mode === 'random') {
+        if (mode === 'radio') {
             if (typeof soundsData !== 'undefined') {
                 shuffledSounds = [...soundsData].sort(() => Math.random() - 0.5);
                 soundData = shuffledSounds[0];
@@ -372,7 +372,7 @@
                 playerContainer.classList.add('inline');
             }
             
-            if (mode === 'random') {
+            if (mode === 'radio') {
                 const controls = document.getElementById('player-controls');
                 controls.innerHTML = `
                     <button class="control-btn prev-btn" onclick="playPrevious()">
@@ -408,7 +408,21 @@
         }
         
         function updatePlayer(sound) {
-            document.getElementById('sound-title').textContent = sound.title;
+            const titleElement = document.getElementById('sound-title');
+            const fullTitle = sound.title;
+            if (fullTitle.length > 32) {
+                titleElement.textContent = fullTitle.substring(0, 29) + '...';
+                titleElement.setAttribute('data-full-title', fullTitle);
+                titleElement.style.cursor = 'pointer';
+                titleElement.onclick = function() {
+                    alert(this.getAttribute('data-full-title'));
+                };
+            } else {
+                titleElement.textContent = fullTitle;
+                titleElement.onclick = null;
+                titleElement.style.cursor = 'default';
+                titleElement.removeAttribute('data-full-title');
+            }
             document.getElementById('vinyl-img').src = sound.image;
             
             const audio = document.getElementById('audio');
@@ -437,7 +451,7 @@
                 document.getElementById('vinyl').classList.remove('playing');
                 document.getElementById('progress').value = 0;
                 document.getElementById('current-time').textContent = '0:00';
-                if (mode === 'random') {
+                if (mode === 'radio') {
                     playNext();
                 }
             }, { once: true });
