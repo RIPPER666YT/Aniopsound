@@ -79,7 +79,7 @@
         
         .sounds-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             margin: 30px 0;
         }
@@ -323,7 +323,7 @@
         
         @media (max-width: 768px) {
             .sounds-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .vinyl-container {
@@ -458,7 +458,6 @@
         <section>
             <h2 class="section-title">Доступные звуки</h2>
             <div class="sounds-grid" id="sounds-container">
-                <!-- Звуки будут загружены через JavaScript -->
             </div>
         </section>
     </main>
@@ -492,14 +491,12 @@
         let currentEmbedId = null;
         let currentEmbedMode = 'single';
 
-        // Функция для форматирования времени
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
 
-        // Для индивидуальных звуков
         function createSoundPlayer(sound) {
             return `
                 <div class="sound-card">
@@ -553,7 +550,6 @@
             `;
         }
 
-        // Переключение для индивидуальных
         function togglePlay(soundId) {
             const audio = document.getElementById(`audio-${soundId}`);
             const playIcon = document.getElementById(`play-icon-${soundId}`);
@@ -578,7 +574,6 @@
             }
         }
 
-        // Next/prev для все звуки (как плейлист всех)
         function playNext(soundId) {
             const cards = Array.from(document.getElementById('sounds-container').getElementsByClassName('sound-card'));
             const currentIndex = cards.findIndex(card => card.querySelector(`#audio-${soundId}`));
@@ -597,7 +592,6 @@
             togglePlay(prevSoundId);
         }
 
-        // Set progress/volume for individual
         function setProgress(soundId, value) {
             const audio = document.getElementById(`audio-${soundId}`);
             audio.currentTime = (value / 100) * audio.duration;
@@ -633,7 +627,6 @@
             slider.style.background = `linear-gradient(to right, var(--primary) ${slider.value * 100}%, rgba(255,255,255,0.1) ${slider.value * 100}%)`;
         }
 
-        // Для радио
         function randomUpdatePlayer(sound) {
             document.getElementById('random-sound-title').textContent = sound.title;
             document.getElementById('random-vinyl-img').src = sound.image;
@@ -676,7 +669,6 @@
             if (audio.paused) {
                 if (currentPlayingAudio && currentPlayingAudio !== audio) {
                     currentPlayingAudio.pause();
-                    // Assuming other players are individual, but since random is separate, handle if needed
                 }
                 audio.play();
                 playIcon.className = 'fas fa-pause';
@@ -737,7 +729,6 @@
             slider.style.background = `linear-gradient(to right, var(--primary) ${slider.value * 100}%, rgba(255,255,255,0.1) ${slider.value * 100}%)`;
         }
 
-        // Modal functions
         function showEmbedModal(id, mode = 'single') {
             currentEmbedId = id;
             currentEmbedMode = mode;
@@ -767,7 +758,6 @@
             });
         }
 
-        // Инициализация
         function initSoundPlayers() {
             const soundsContainer = document.getElementById('sounds-container');
             
@@ -804,7 +794,7 @@
                             progress.value = 0;
                             currentTime.textContent = '0:00';
                             currentPlayingAudio = null;
-                            playNext(sound.id); // Auto next
+                            playNext(sound.id); 
                         });
 
                         volumeSlider.style.background = `linear-gradient(to right, var(--primary) ${volumeSlider.value * 100}%, rgba(255,255,255,0.1) ${volumeSlider.value * 100}%)`;
@@ -820,7 +810,6 @@
                     }
                 });
 
-                // Для радио
                 randomShuffledSounds = [...soundsData].sort(() => Math.random() - 0.5);
                 randomUpdatePlayer(randomShuffledSounds[randomCurrentIndex]);
 
