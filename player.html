@@ -410,7 +410,7 @@
         function updatePlayer(sound) {
             const titleElement = document.getElementById('sound-title');
             const fullTitle = sound.title;
-            if (fullTitle.length > 32) {
+            if (fullTitle.length > 33) {
                 titleElement.textContent = fullTitle.substring(0, 29) + '...';
                 titleElement.setAttribute('data-full-title', fullTitle);
                 titleElement.style.cursor = 'pointer';
@@ -524,3 +524,4 @@
     </script>
 </body>
 </html>
+
