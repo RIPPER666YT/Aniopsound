@@ -501,6 +501,15 @@
 
         // Для индивидуальных звуков
         function createSoundPlayer(sound) {
+            let titleHtml = '';
+            const fullTitle = sound.title;
+            if (fullTitle.length > 32) {
+                const truncatedTitle = fullTitle.substring(0, 29) + '...';
+                titleHtml = `<h3 class="sound-title" data-full-title="${fullTitle}" onclick="alert(this.getAttribute('data-full-title'))" style="cursor: pointer;">${truncatedTitle}</h3>`;
+            } else {
+                titleHtml = `<h3 class="sound-title">${fullTitle}</h3>`;
+            }
+
             return `
                 <div class="sound-card">
                     <div class="sound-player">
@@ -514,7 +523,7 @@
                         </div>
                         
                         <div class="sound-info">
-                            <h3 class="sound-title">${sound.title}</h3>
+                            ${titleHtml}
                             
                             <audio id="audio-${sound.id}" preload="metadata">
                                 <source src="sounds/${sound.file}.mp3" type="audio/mpeg">
@@ -635,7 +644,21 @@
 
         // Для радио
         function randomUpdatePlayer(sound) {
-            document.getElementById('random-sound-title').textContent = sound.title;
+            const titleElement = document.getElementById('random-sound-title');
+            const fullTitle = sound.title;
+            if (fullTitle.length > 32) {
+                titleElement.textContent = fullTitle.substring(0, 29) + '...';
+                titleElement.setAttribute('data-full-title', fullTitle);
+                titleElement.style.cursor = 'pointer';
+                titleElement.onclick = function() {
+                    alert(this.getAttribute('data-full-title'));
+                };
+            } else {
+                titleElement.textContent = fullTitle;
+                titleElement.onclick = null;
+                titleElement.style.cursor = 'default';
+                titleElement.removeAttribute('data-full-title');
+            }
             document.getElementById('random-vinyl-img').src = sound.image;
             
             const audio = document.getElementById('random-audio');
