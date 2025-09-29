@@ -368,7 +368,7 @@
         </section>
         
         <section>
-            <h2 class="section-title">Рандомные треки</h2>
+            <h2 class="section-title">Радио</h2>
             <div style="display: flex; justify-content: center;">
                 <div class="sound-card" style="max-width: 300px;">
                     <div class="sound-player">
@@ -442,7 +442,6 @@
         let randomShuffledSounds = [];
         let randomCurrentIndex = 0;
         let randomPreviousVolume = 0.7;
-        let randomWasPlaying = false;
 
         // Функция для форматирования времени
         function formatTime(seconds) {
@@ -613,13 +612,17 @@
             
             audio.addEventListener('loadedmetadata', () => {
                 document.getElementById('random-duration').textContent = formatTime(audio.duration);
+                document.getElementById('random-progress').value = 0;
+                document.getElementById('random-current-time').textContent = '0:00';
             }, { once: true });
             
             audio.addEventListener('timeupdate', () => {
                 const progress = document.getElementById('random-progress');
-                progress.value = (audio.currentTime / audio.duration) * 100;
-                document.getElementById('random-current-time').textContent = formatTime(audio.currentTime);
-                progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
+                if (!progress.seeking) {
+                    progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+                    document.getElementById('random-current-time').textContent = formatTime(audio.currentTime);
+                    progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
+                }
             });
             
             audio.addEventListener('ended', () => {
@@ -725,12 +728,16 @@
                         
                         audio.addEventListener('loadedmetadata', () => {
                             duration.textContent = formatTime(audio.duration);
+                            progress.value = 0;
+                            currentTime.textContent = '0:00';
                         });
                         
                         audio.addEventListener('timeupdate', () => {
-                            progress.value = (audio.currentTime / audio.duration) * 100;
-                            currentTime.textContent = formatTime(audio.currentTime);
-                            progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
+                            if (!progress.seeking) {
+                                progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+                                currentTime.textContent = formatTime(audio.currentTime);
+                                progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
+                            }
                         });
                         
                         audio.addEventListener('ended', () => {
@@ -746,22 +753,13 @@
 
                         volumeSlider.style.background = `linear-gradient(to right, var(--primary) ${volumeSlider.value * 100}%, rgba(255,255,255,0.1) ${volumeSlider.value * 100}%)`;
 
-                        progress.addEventListener('mousedown', () => {
-                            if (!audio.paused) {
-                                randomWasPlaying = true;
-                                audio.pause();
-                            } else {
-                                randomWasPlaying = false;
-                            }
-                        });
-                        progress.addEventListener('mouseup', () => {
-                            setProgress(sound.id, progress.value);
-                            if (randomWasPlaying) {
-                                audio.play();
-                            }
-                        });
                         progress.addEventListener('input', () => {
+                            progress.seeking = true;
+                            setProgress(sound.id, progress.value);
                             progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
+                        });
+                        progress.addEventListener('change', () => {
+                            progress.seeking = false;
                         });
                     }
                 });
@@ -774,22 +772,13 @@
                 const randomVolume = document.getElementById('random-volume');
                 randomVolume.style.background = `linear-gradient(to right, var(--primary) ${randomVolume.value * 100}%, rgba(255,255,255,0.1) ${randomVolume.value * 100}%)`;
 
-                randomProgress.addEventListener('mousedown', () => {
-                    if (!document.getElementById('random-audio').paused) {
-                        randomWasPlaying = true;
-                        document.getElementById('random-audio').pause();
-                    } else {
-                        randomWasPlaying = false;
-                    }
-                });
-                randomProgress.addEventListener('mouseup', () => {
-                    randomSetProgress(randomProgress.value);
-                    if (randomWasPlaying) {
-                        document.getElementById('random-audio').play();
-                    }
-                });
                 randomProgress.addEventListener('input', () => {
+                    randomProgress.seeking = true;
+                    randomSetProgress(randomProgress.value);
                     randomProgress.style.background = `linear-gradient(to right, var(--primary) ${randomProgress.value}%, rgba(255,255,255,0.1) ${randomProgress.value}%)`;
+                });
+                randomProgress.addEventListener('change', () => {
+                    randomProgress.seeking = false;
                 });
             } else {
                 soundsContainer.innerHTML = '<p style="text-align: center; color: var(--accent);">Ошибка загрузки данных о звуках.</p>';
