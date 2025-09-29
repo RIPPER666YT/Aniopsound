@@ -42,7 +42,7 @@
         .player-container.inline {
             flex-direction: row;
             max-width: 600px;
-            align-items: center;
+            align-items: flex-start;
             gap: 20px;
         }
         
@@ -50,11 +50,12 @@
             width: 100px;
             height: 100px;
             margin: 0;
+            order: -1;
         }
         
         .player-container.inline .vinyl-image {
-            width: 60px;
-            height: 60px;
+            width: 90px;
+            height: 90px;
         }
         
         .player-container.inline .sound-info {
@@ -103,8 +104,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             overflow: hidden;
             z-index: 1;
@@ -124,17 +125,8 @@
             height: 100%;
             border-radius: 50%;
             background: 
-                radial-gradient(circle at center, transparent 40%, rgba(255,255,255,0.1) 40.5%, transparent 41%),
-                radial-gradient(circle at center, transparent 45%, rgba(255,255,255,0.1) 45.5%, transparent 46%),
-                radial-gradient(circle at center, transparent 50%, rgba(255,255,255,0.1) 50.5%, transparent 51%),
-                radial-gradient(circle at center, transparent 55%, rgba(255,255,255,0.1) 55.5%, transparent 56%),
-                radial-gradient(circle at center, transparent 60%, rgba(255,255,255,0.1) 60.5%, transparent 61%),
-                radial-gradient(circle at center, transparent 65%, rgba(255,255,255,0.1) 65.5%, transparent 66%),
-                radial-gradient(circle at center, transparent 70%, rgba(255,255,255,0.1) 70.5%, transparent 71%),
-                radial-gradient(circle at center, transparent 75%, rgba(255,255,255,0.1) 75.5%, transparent 76%),
-                radial-gradient(circle at center, transparent 80%, rgba(255,255,255,0.1) 80.5%, transparent 81%),
-                radial-gradient(circle at center, transparent 85%, rgba(255,255,255,0.1) 85.5%, transparent 86%),
-                radial-gradient(circle at center, transparent 90%, rgba(255,255,255,0.1) 90.5%, transparent 91%);
+                radial-gradient(circle at center, transparent 90%, rgba(255,255,255,0.1) 90.5%, transparent 91%),
+                radial-gradient(circle at center, transparent 95%, rgba(255,255,255,0.1) 95.5%, transparent 96%);
         }
         
         .sound-info {
@@ -234,6 +226,10 @@
             margin-top: 15px;
         }
         
+        .volume-icon {
+            cursor: pointer;
+        }
+        
         .volume-slider {
             width: 100px;
         }
@@ -250,6 +246,12 @@
             text-decoration: none;
         }
         
+        .player-container.inline .attribution {
+            margin-top: 0;
+            text-align: left;
+            margin-left: 120px;
+        }
+        
         @media (max-width: 480px) {
             .player-container {
                 padding: 10px;
@@ -261,8 +263,8 @@
             }
             
             .vinyl-image {
-                width: 90px;
-                height: 90px;
+                width: 135px;
+                height: 135px;
             }
             
             .player-controls {
@@ -313,7 +315,7 @@
             </div>
             
             <div class="progress-container">
-                <input type="range" id="progress" min="0" max="100" value="0" step="0.1" oninput="setProgress(this.value)">
+                <input type="range" id="progress" min="0" max="100" value="0" step="0.1">
                 <div class="time-display">
                     <span id="current-time">0:00</span>
                     <span id="duration">0:00</span>
@@ -321,7 +323,7 @@
             </div>
             
             <div class="volume-container">
-                <i class="fas fa-volume-up"></i>
+                <i class="fas fa-volume-up volume-icon" id="volume-icon" onclick="toggleMute()"></i>
                 <input type="range" class="volume-slider" id="volume" min="0" max="1" step="0.01" value="0.7" oninput="setVolume(this.value)">
             </div>
         </div>
@@ -341,6 +343,8 @@
         let soundData = null;
         let shuffledSounds = [];
         let currentIndex = 0;
+        let previousVolume = 0.7;
+        let wasPlaying = false;
         
         if (mode === 'random') {
             if (typeof soundsData !== 'undefined') {
@@ -385,6 +389,29 @@
             } else {
                 document.getElementById('sound-title').textContent = 'Звук не найден';
             }
+
+            const progress = document.getElementById('progress');
+            const volumeSlider = document.getElementById('volume');
+            volumeSlider.style.background = `linear-gradient(to right, var(--primary) ${volumeSlider.value * 100}%, rgba(255,255,255,0.1) ${volumeSlider.value * 100}%)`;
+
+            progress.addEventListener('mousedown', () => {
+                const audio = document.getElementById('audio');
+                if (!audio.paused) {
+                    wasPlaying = true;
+                    audio.pause();
+                } else {
+                    wasPlaying = false;
+                }
+            });
+            progress.addEventListener('mouseup', () => {
+                setProgress(progress.value);
+                if (wasPlaying) {
+                    document.getElementById('audio').play();
+                }
+            });
+            progress.addEventListener('input', () => {
+                progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
+            });
         }
         
         function updatePlayer(sound) {
@@ -402,8 +429,10 @@
             }, { once: true });
             
             audio.addEventListener('timeupdate', () => {
-                document.getElementById('progress').value = (audio.currentTime / audio.duration) * 100;
+                const progress = document.getElementById('progress');
+                progress.value = (audio.currentTime / audio.duration) * 100;
                 document.getElementById('current-time').textContent = formatTime(audio.currentTime);
+                progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
             });
             
             audio.addEventListener('ended', () => {
@@ -452,7 +481,32 @@
         
         function setVolume(value) {
             const audio = document.getElementById('audio');
+            const icon = document.getElementById('volume-icon');
             audio.volume = value;
+            if (value > 0) {
+                icon.className = 'fas fa-volume-up volume-icon';
+            } else {
+                icon.className = 'fas fa-volume-mute volume-icon';
+            }
+            const slider = document.getElementById('volume');
+            slider.style.background = `linear-gradient(to right, var(--primary) ${value * 100}%, rgba(255,255,255,0.1) ${value * 100}%)`;
+        }
+
+        function toggleMute() {
+            const audio = document.getElementById('audio');
+            const icon = document.getElementById('volume-icon');
+            const slider = document.getElementById('volume');
+            if (audio.volume > 0) {
+                previousVolume = audio.volume;
+                audio.volume = 0;
+                slider.value = 0;
+                icon.className = 'fas fa-volume-mute volume-icon';
+            } else {
+                audio.volume = previousVolume || 0.7;
+                slider.value = audio.volume;
+                icon.className = 'fas fa-volume-up volume-icon';
+            }
+            slider.style.background = `linear-gradient(to right, var(--primary) ${slider.value * 100}%, rgba(255,255,255,0.1) ${slider.value * 100}%)`;
         }
         
         document.addEventListener('DOMContentLoaded', initPlayer);
