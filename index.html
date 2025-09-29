@@ -646,8 +646,8 @@
         function randomUpdatePlayer(sound) {
             const titleElement = document.getElementById('random-sound-title');
             const fullTitle = sound.title;
-            if (fullTitle.length > 32) {
-                titleElement.textContent = fullTitle.substring(0, 29) + '...';
+            if (fullTitle.length > 33) {
+                titleElement.textContent = fullTitle.substring(0, 30) + '...';
                 titleElement.setAttribute('data-full-title', fullTitle);
                 titleElement.style.cursor = 'pointer';
                 titleElement.onclick = function() {
@@ -869,3 +869,4 @@
     </script>
 </body>
 </html>
+
