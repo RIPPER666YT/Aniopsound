@@ -34,6 +34,42 @@
         .player-container {
             max-width: 300px;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .player-container.inline {
+            flex-direction: row;
+            max-width: 600px;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .player-container.inline .vinyl-container {
+            width: 100px;
+            height: 100px;
+            margin: 0;
+        }
+        
+        .player-container.inline .vinyl-image {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .player-container.inline .sound-info {
+            flex: 1;
+            padding: 0;
+            text-align: left;
+        }
+        
+        .player-container.inline .player-controls {
+            justify-content: flex-start;
+        }
+        
+        .player-container.inline .progress-container,
+        .player-container.inline .volume-container {
+            width: auto;
         }
         
         .vinyl-container {
@@ -60,19 +96,6 @@
         @keyframes rotate {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
-        }
-        
-        .vinyl-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            background: var(--accent);
-            border-radius: 50%;
-            z-index: 2;
-            box-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
         }
         
         .vinyl-image {
@@ -117,6 +140,7 @@
         .sound-info {
             padding: 15px;
             text-align: center;
+            width: 100%;
         }
         
         .sound-title {
@@ -168,20 +192,31 @@
             margin-top: 15px;
         }
         
-        .progress-bar {
+        input[type="range"] {
+            -webkit-appearance: none;
             width: 100%;
             height: 6px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 3px;
-            overflow: hidden;
+            outline: none;
             cursor: pointer;
         }
         
-        .progress {
-            height: 100%;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            width: 0%;
-            transition: width 0.1s;
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(106, 90, 205, 0.5);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(106, 90, 205, 0.5);
         }
         
         .time-display {
@@ -201,18 +236,6 @@
         
         .volume-slider {
             width: 100px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .volume-level {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 2px;
-            width: 70%;
         }
         
         .attribution {
@@ -226,18 +249,52 @@
             color: var(--accent);
             text-decoration: none;
         }
+        
+        @media (max-width: 480px) {
+            .player-container {
+                padding: 10px;
+            }
+            
+            .vinyl-container {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .vinyl-image {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .player-controls {
+                gap: 10px;
+            }
+            
+            .control-btn {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .play-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .player-container.inline {
+                flex-direction: column;
+                max-width: 300px;
+            }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="player-container">
+    <div class="player-container" id="player-container">
         <div class="vinyl-container">
             <div class="vinyl" id="vinyl">
                 <div class="vinyl-grooves"></div>
                 <div class="vinyl-image">
                     <img id="vinyl-img" src="" alt="">
                 </div>
-                <div class="vinyl-center"></div>
             </div>
         </div>
         
@@ -249,22 +306,14 @@
                 Ваш браузер не поддерживает аудио элементы.
             </audio>
             
-            <div class="player-controls">
-                <button class="control-btn prev-btn" onclick="skipBackward()">
-                    <i class="fas fa-backward"></i>
-                </button>
+            <div class="player-controls" id="player-controls">
                 <button class="control-btn play-btn" id="play-btn" onclick="togglePlay()">
                     <i class="fas fa-play" id="play-icon"></i>
-                </button>
-                <button class="control-btn next-btn" onclick="skipForward()">
-                    <i class="fas fa-forward"></i>
                 </button>
             </div>
             
             <div class="progress-container">
-                <div class="progress-bar" id="progress-bar" onclick="setProgress(event)">
-                    <div class="progress" id="progress"></div>
-                </div>
+                <input type="range" id="progress" min="0" max="100" value="0" step="0.1" oninput="setProgress(this.value)">
                 <div class="time-display">
                     <span id="current-time">0:00</span>
                     <span id="duration">0:00</span>
@@ -273,9 +322,7 @@
             
             <div class="volume-container">
                 <i class="fas fa-volume-up"></i>
-                <div class="volume-slider" id="volume-slider" onclick="setVolume(event)">
-                    <div class="volume-level" id="volume-level"></div>
-                </div>
+                <input type="range" class="volume-slider" id="volume" min="0" max="1" step="0.01" value="0.7" oninput="setVolume(this.value)">
             </div>
         </div>
         
@@ -286,62 +333,90 @@
 
     <script src="opsound.js"></script>
     <script>
-        // Получаем ID звука из параметров URL
         const urlParams = new URLSearchParams(window.location.search);
         const soundId = urlParams.get('id');
+        const mode = urlParams.get('mode') || 'single';
+        const style = urlParams.get('style') || 'normal';
         
-        // Находим данные о звуке
         let soundData = null;
-        if (typeof soundsData !== 'undefined') {
-            soundData = soundsData.find(sound => sound.id === soundId);
+        let shuffledSounds = [];
+        let currentIndex = 0;
+        
+        if (mode === 'random') {
+            if (typeof soundsData !== 'undefined') {
+                shuffledSounds = [...soundsData].sort(() => Math.random() - 0.5);
+                soundData = shuffledSounds[0];
+            }
+        } else {
+            if (typeof soundsData !== 'undefined') {
+                soundData = soundsData.find(sound => sound.id === soundId);
+            }
         }
         
-        // Функция для форматирования времени в минуты:секунды
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
         
-        // Инициализация плеера
         function initPlayer() {
+            const playerContainer = document.getElementById('player-container');
+            if (style === 'inline') {
+                playerContainer.classList.add('inline');
+            }
+            
+            if (mode === 'random') {
+                const controls = document.getElementById('player-controls');
+                controls.innerHTML = `
+                    <button class="control-btn prev-btn" onclick="playPrevious()">
+                        <i class="fas fa-backward"></i>
+                    </button>
+                    <button class="control-btn play-btn" id="play-btn" onclick="togglePlay()">
+                        <i class="fas fa-play" id="play-icon"></i>
+                    </button>
+                    <button class="control-btn next-btn" onclick="playNext()">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                `;
+            }
+            
             if (soundData) {
-                // Устанавливаем данные о звуке
-                document.getElementById('sound-title').textContent = soundData.title;
-                document.getElementById('vinyl-img').src = soundData.image;
-                
-                const audio = document.getElementById('audio');
-                audio.src = `sounds/${soundData.file}.mp3`;
-                
-                // Установка начальной громкости
-                audio.volume = 0.7;
-                document.getElementById('volume-level').style.width = '70%';
-                
-                // Обновление времени при загрузке метаданных
-                audio.addEventListener('loadedmetadata', () => {
-                    document.getElementById('duration').textContent = formatTime(audio.duration);
-                });
-                
-                // Обновление прогресса воспроизведения
-                audio.addEventListener('timeupdate', () => {
-                    const percent = (audio.currentTime / audio.duration) * 100;
-                    document.getElementById('progress').style.width = `${percent}%`;
-                    document.getElementById('current-time').textContent = formatTime(audio.currentTime);
-                });
-                
-                // Сброс состояния при завершении воспроизведения
-                audio.addEventListener('ended', () => {
-                    document.getElementById('play-icon').className = 'fas fa-play';
-                    document.getElementById('vinyl').classList.remove('playing');
-                    document.getElementById('progress').style.width = '0%';
-                    document.getElementById('current-time').textContent = '0:00';
-                });
+                updatePlayer(soundData);
             } else {
                 document.getElementById('sound-title').textContent = 'Звук не найден';
             }
         }
         
-        // Функция для переключения воспроизведения
+        function updatePlayer(sound) {
+            document.getElementById('sound-title').textContent = sound.title;
+            document.getElementById('vinyl-img').src = sound.image;
+            
+            const audio = document.getElementById('audio');
+            audio.src = `sounds/${sound.file}.mp3`;
+            audio.load();
+            
+            audio.volume = document.getElementById('volume').value;
+            
+            audio.addEventListener('loadedmetadata', () => {
+                document.getElementById('duration').textContent = formatTime(audio.duration);
+            }, { once: true });
+            
+            audio.addEventListener('timeupdate', () => {
+                document.getElementById('progress').value = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('current-time').textContent = formatTime(audio.currentTime);
+            });
+            
+            audio.addEventListener('ended', () => {
+                document.getElementById('play-icon').className = 'fas fa-play';
+                document.getElementById('vinyl').classList.remove('playing');
+                document.getElementById('progress').value = 0;
+                document.getElementById('current-time').textContent = '0:00';
+                if (mode === 'random') {
+                    playNext();
+                }
+            }, { once: true });
+        }
+        
         function togglePlay() {
             const audio = document.getElementById('audio');
             const playIcon = document.getElementById('play-icon');
@@ -358,38 +433,28 @@
             }
         }
         
-        // Функция для пропуска вперед
-        function skipForward() {
-            const audio = document.getElementById('audio');
-            audio.currentTime += 10;
+        function playNext() {
+            currentIndex = (currentIndex + 1) % shuffledSounds.length;
+            updatePlayer(shuffledSounds[currentIndex]);
+            togglePlay();
         }
         
-        // Функция для пропуска назад
-        function skipBackward() {
-            const audio = document.getElementById('audio');
-            audio.currentTime -= 10;
+        function playPrevious() {
+            currentIndex = (currentIndex - 1 + shuffledSounds.length) % shuffledSounds.length;
+            updatePlayer(shuffledSounds[currentIndex]);
+            togglePlay();
         }
         
-        // Функция для установки позиции воспроизведения
-        function setProgress(event) {
+        function setProgress(value) {
             const audio = document.getElementById('audio');
-            const progressBar = document.getElementById('progress-bar');
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (event.clientX - rect.left) / rect.width;
-            audio.currentTime = percent * audio.duration;
+            audio.currentTime = (value / 100) * audio.duration;
         }
         
-        // Функция для установки громкости
-        function setVolume(event) {
+        function setVolume(value) {
             const audio = document.getElementById('audio');
-            const volumeSlider = document.getElementById('volume-slider');
-            const rect = volumeSlider.getBoundingClientRect();
-            const percent = (event.clientX - rect.left) / rect.width;
-            audio.volume = Math.max(0, Math.min(1, percent));
-            document.getElementById('volume-level').style.width = `${percent * 100}%`;
+            audio.volume = value;
         }
         
-        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', initPlayer);
     </script>
 </body>
