@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aniopsound - Хостинг звуков для сайтов</title>
+    <title>Aniopsound - Созданное хранилище опенингов специально для Анияхта</title>
     <style>
         :root {
             --primary: #6a5acd;
@@ -371,7 +371,7 @@
             }
         }
     </style>
-    <meta name="description" content="Aniopsound - хостинг звуков для сайтов. Встраивайте плееры с аниме музыкой на свои сайты через iframe.">
+    <meta name="description" content="Aniopsound - Созданное хранилище опенингов специально для Анияхта">
     <meta name="author" content="RIPPER">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="icon/iconfavicon.ico">
@@ -387,7 +387,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ripper666yt.github.io/Aniopsound/">
     <meta property="og:title" content="Aniopsound - Хостинг звуков для сайтов">
-    <meta property="og:description" content="Aniopsound - хостинг звуков для сайтов. Встраивайте плееры с аниме музыкой на свои сайты через iframe.">
+    <meta property="og:description" content="Aniopsound - Созданное хранилище опенингов специально для Анияхта">
     <meta property="og:image" content="https://i.postimg.cc/pVs2FMBC/logo.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -397,7 +397,7 @@
     <main class="container">
         <section class="page-header">
             <h1>Aniopsound</h1>
-            <p>Хостинг звуков для сайтов. Встраивайте плееры с аниме музыкой на свои сайты через iframe.</p>
+            <p>Созданное хранилище опенингов специально для <a href="https://aniyacht.netlify.app">Анияхта</a></p>
         </section>
         
         <section>
@@ -501,15 +501,6 @@
 
         // Для индивидуальных звуков
         function createSoundPlayer(sound) {
-            let titleHtml = '';
-            const fullTitle = sound.title;
-            if (fullTitle.length > 32) {
-                const truncatedTitle = fullTitle.substring(0, 29) + '...';
-                titleHtml = `<h3 class="sound-title" data-full-title="${fullTitle}" onclick="alert(this.getAttribute('data-full-title'))" style="cursor: pointer;">${truncatedTitle}</h3>`;
-            } else {
-                titleHtml = `<h3 class="sound-title">${fullTitle}</h3>`;
-            }
-
             return `
                 <div class="sound-card">
                     <div class="sound-player">
@@ -523,7 +514,7 @@
                         </div>
                         
                         <div class="sound-info">
-                            ${titleHtml}
+                            <h3 class="sound-title">${sound.title}</h3>
                             
                             <audio id="audio-${sound.id}" preload="metadata">
                                 <source src="sounds/${sound.file}.mp3" type="audio/mpeg">
@@ -644,21 +635,7 @@
 
         // Для радио
         function randomUpdatePlayer(sound) {
-            const titleElement = document.getElementById('random-sound-title');
-            const fullTitle = sound.title;
-            if (fullTitle.length > 33) {
-                titleElement.textContent = fullTitle.substring(0, 30) + '...';
-                titleElement.setAttribute('data-full-title', fullTitle);
-                titleElement.style.cursor = 'pointer';
-                titleElement.onclick = function() {
-                    alert(this.getAttribute('data-full-title'));
-                };
-            } else {
-                titleElement.textContent = fullTitle;
-                titleElement.onclick = null;
-                titleElement.style.cursor = 'default';
-                titleElement.removeAttribute('data-full-title');
-            }
+            document.getElementById('random-sound-title').textContent = sound.title;
             document.getElementById('random-vinyl-img').src = sound.image;
             
             const audio = document.getElementById('random-audio');
@@ -869,4 +846,3 @@
     </script>
 </body>
 </html>
-
