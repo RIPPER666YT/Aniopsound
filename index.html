@@ -134,8 +134,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             overflow: hidden;
             z-index: 1;
@@ -155,17 +155,8 @@
             height: 100%;
             border-radius: 50%;
             background: 
-                radial-gradient(circle at center, transparent 40%, rgba(255,255,255,0.1) 40.5%, transparent 41%),
-                radial-gradient(circle at center, transparent 45%, rgba(255,255,255,0.1) 45.5%, transparent 46%),
-                radial-gradient(circle at center, transparent 50%, rgba(255,255,255,0.1) 50.5%, transparent 51%),
-                radial-gradient(circle at center, transparent 55%, rgba(255,255,255,0.1) 55.5%, transparent 56%),
-                radial-gradient(circle at center, transparent 60%, rgba(255,255,255,0.1) 60.5%, transparent 61%),
-                radial-gradient(circle at center, transparent 65%, rgba(255,255,255,0.1) 65.5%, transparent 66%),
-                radial-gradient(circle at center, transparent 70%, rgba(255,255,255,0.1) 70.5%, transparent 71%),
-                radial-gradient(circle at center, transparent 75%, rgba(255,255,255,0.1) 75.5%, transparent 76%),
-                radial-gradient(circle at center, transparent 80%, rgba(255,255,255,0.1) 80.5%, transparent 81%),
-                radial-gradient(circle at center, transparent 85%, rgba(255,255,255,0.1) 85.5%, transparent 86%),
-                radial-gradient(circle at center, transparent 90%, rgba(255,255,255,0.1) 90.5%, transparent 91%);
+                radial-gradient(circle at center, transparent 90%, rgba(255,255,255,0.1) 90.5%, transparent 91%),
+                radial-gradient(circle at center, transparent 95%, rgba(255,255,255,0.1) 95.5%, transparent 96%);
         }
         
         .sound-info {
@@ -264,6 +255,10 @@
             margin-top: 15px;
         }
         
+        .volume-icon {
+            cursor: pointer;
+        }
+        
         .volume-slider {
             width: 100px;
         }
@@ -308,8 +303,8 @@
             }
             
             .vinyl-image {
-                width: 100px;
-                height: 100px;
+                width: 160px;
+                height: 160px;
             }
         }
         
@@ -324,8 +319,8 @@
             }
             
             .vinyl-image {
-                width: 90px;
-                height: 90px;
+                width: 140px;
+                height: 140px;
             }
             
             .player-controls {
@@ -407,7 +402,7 @@
                             </div>
                             
                             <div class="progress-container">
-                                <input type="range" id="random-progress" min="0" max="100" value="0" step="0.1" oninput="randomSetProgress(this.value)">
+                                <input type="range" id="random-progress" min="0" max="100" value="0" step="0.1">
                                 <div class="time-display">
                                     <span id="random-current-time">0:00</span>
                                     <span id="random-duration">0:00</span>
@@ -415,7 +410,7 @@
                             </div>
                             
                             <div class="volume-container">
-                                <i class="fas fa-volume-up"></i>
+                                <i class="fas fa-volume-up volume-icon" id="random-volume-icon" onclick="randomToggleMute()"></i>
                                 <input type="range" class="volume-slider" id="random-volume" min="0" max="1" step="0.01" value="0.7" oninput="randomSetVolume(this.value)">
                             </div>
                         </div>
@@ -446,6 +441,8 @@
         let currentPlayingAudio = null;
         let randomShuffledSounds = [];
         let randomCurrentIndex = 0;
+        let randomPreviousVolume = 0.7;
+        let randomWasPlaying = false;
 
         // Функция для форматирования времени
         function formatTime(seconds) {
@@ -488,7 +485,7 @@
                             </div>
                             
                             <div class="progress-container">
-                                <input type="range" id="progress-${sound.id}" min="0" max="100" value="0" step="0.1" oninput="setProgress('${sound.id}', this.value)">
+                                <input type="range" id="progress-${sound.id}" min="0" max="100" value="0" step="0.1">
                                 <div class="time-display">
                                     <span id="current-time-${sound.id}">0:00</span>
                                     <span id="duration-${sound.id}">0:00</span>
@@ -496,7 +493,7 @@
                             </div>
                             
                             <div class="volume-container">
-                                <i class="fas fa-volume-up"></i>
+                                <i class="fas fa-volume-up volume-icon" id="volume-icon-${sound.id}" onclick="toggleMute('${sound.id}')"></i>
                                 <input type="range" class="volume-slider" id="volume-${sound.id}" min="0" max="1" step="0.01" value="0.7" oninput="setVolume('${sound.id}', this.value)">
                             </div>
                         </div>
@@ -566,7 +563,32 @@
 
         function setVolume(soundId, value) {
             const audio = document.getElementById(`audio-${soundId}`);
+            const icon = document.getElementById(`volume-icon-${soundId}`);
             audio.volume = value;
+            if (value > 0) {
+                icon.className = 'fas fa-volume-up volume-icon';
+            } else {
+                icon.className = 'fas fa-volume-mute volume-icon';
+            }
+            const slider = document.getElementById(`volume-${soundId}`);
+            slider.style.background = `linear-gradient(to right, var(--primary) ${value * 100}%, rgba(255,255,255,0.1) ${value * 100}%)`;
+        }
+
+        function toggleMute(soundId) {
+            const audio = document.getElementById(`audio-${soundId}`);
+            const icon = document.getElementById(`volume-icon-${soundId}`);
+            const slider = document.getElementById(`volume-${soundId}`);
+            if (audio.volume > 0) {
+                audio.previousVolume = audio.volume;
+                audio.volume = 0;
+                slider.value = 0;
+                icon.className = 'fas fa-volume-mute volume-icon';
+            } else {
+                audio.volume = audio.previousVolume || 0.7;
+                slider.value = audio.volume;
+                icon.className = 'fas fa-volume-up volume-icon';
+            }
+            slider.style.background = `linear-gradient(to right, var(--primary) ${slider.value * 100}%, rgba(255,255,255,0.1) ${slider.value * 100}%)`;
         }
 
         // Copy for individual
@@ -594,8 +616,10 @@
             }, { once: true });
             
             audio.addEventListener('timeupdate', () => {
-                document.getElementById('random-progress').value = (audio.currentTime / audio.duration) * 100;
+                const progress = document.getElementById('random-progress');
+                progress.value = (audio.currentTime / audio.duration) * 100;
                 document.getElementById('random-current-time').textContent = formatTime(audio.currentTime);
+                progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
             });
             
             audio.addEventListener('ended', () => {
@@ -648,7 +672,32 @@
 
         function randomSetVolume(value) {
             const audio = document.getElementById('random-audio');
+            const icon = document.getElementById('random-volume-icon');
             audio.volume = value;
+            if (value > 0) {
+                icon.className = 'fas fa-volume-up volume-icon';
+            } else {
+                icon.className = 'fas fa-volume-mute volume-icon';
+            }
+            const slider = document.getElementById('random-volume');
+            slider.style.background = `linear-gradient(to right, var(--primary) ${value * 100}%, rgba(255,255,255,0.1) ${value * 100}%)`;
+        }
+
+        function randomToggleMute() {
+            const audio = document.getElementById('random-audio');
+            const icon = document.getElementById('random-volume-icon');
+            const slider = document.getElementById('random-volume');
+            if (audio.volume > 0) {
+                randomPreviousVolume = audio.volume;
+                audio.volume = 0;
+                slider.value = 0;
+                icon.className = 'fas fa-volume-mute volume-icon';
+            } else {
+                audio.volume = randomPreviousVolume || 0.7;
+                slider.value = audio.volume;
+                icon.className = 'fas fa-volume-up volume-icon';
+            }
+            slider.style.background = `linear-gradient(to right, var(--primary) ${slider.value * 100}%, rgba(255,255,255,0.1) ${slider.value * 100}%)`;
         }
 
         function copyRandomEmbedCode(style) {
@@ -672,6 +721,7 @@
                         const progress = document.getElementById(`progress-${sound.id}`);
                         const currentTime = document.getElementById(`current-time-${sound.id}`);
                         const duration = document.getElementById(`duration-${sound.id}`);
+                        const volumeSlider = document.getElementById(`volume-${sound.id}`);
                         
                         audio.addEventListener('loadedmetadata', () => {
                             duration.textContent = formatTime(audio.duration);
@@ -680,6 +730,7 @@
                         audio.addEventListener('timeupdate', () => {
                             progress.value = (audio.currentTime / audio.duration) * 100;
                             currentTime.textContent = formatTime(audio.currentTime);
+                            progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
                         });
                         
                         audio.addEventListener('ended', () => {
@@ -692,12 +743,54 @@
                             currentPlayingAudio = null;
                             playNext(sound.id); // Auto next
                         });
+
+                        volumeSlider.style.background = `linear-gradient(to right, var(--primary) ${volumeSlider.value * 100}%, rgba(255,255,255,0.1) ${volumeSlider.value * 100}%)`;
+
+                        progress.addEventListener('mousedown', () => {
+                            if (!audio.paused) {
+                                randomWasPlaying = true;
+                                audio.pause();
+                            } else {
+                                randomWasPlaying = false;
+                            }
+                        });
+                        progress.addEventListener('mouseup', () => {
+                            setProgress(sound.id, progress.value);
+                            if (randomWasPlaying) {
+                                audio.play();
+                            }
+                        });
+                        progress.addEventListener('input', () => {
+                            progress.style.background = `linear-gradient(to right, var(--primary) ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%)`;
+                        });
                     }
                 });
 
                 // Для рандомного
                 randomShuffledSounds = [...soundsData].sort(() => Math.random() - 0.5);
                 randomUpdatePlayer(randomShuffledSounds[randomCurrentIndex]);
+
+                const randomProgress = document.getElementById('random-progress');
+                const randomVolume = document.getElementById('random-volume');
+                randomVolume.style.background = `linear-gradient(to right, var(--primary) ${randomVolume.value * 100}%, rgba(255,255,255,0.1) ${randomVolume.value * 100}%)`;
+
+                randomProgress.addEventListener('mousedown', () => {
+                    if (!document.getElementById('random-audio').paused) {
+                        randomWasPlaying = true;
+                        document.getElementById('random-audio').pause();
+                    } else {
+                        randomWasPlaying = false;
+                    }
+                });
+                randomProgress.addEventListener('mouseup', () => {
+                    randomSetProgress(randomProgress.value);
+                    if (randomWasPlaying) {
+                        document.getElementById('random-audio').play();
+                    }
+                });
+                randomProgress.addEventListener('input', () => {
+                    randomProgress.style.background = `linear-gradient(to right, var(--primary) ${randomProgress.value}%, rgba(255,255,255,0.1) ${randomProgress.value}%)`;
+                });
             } else {
                 soundsContainer.innerHTML = '<p style="text-align: center; color: var(--accent);">Ошибка загрузки данных о звуках.</p>';
                 document.getElementById('random-sound-title').textContent = 'Ошибка';
