@@ -275,9 +275,6 @@
         }
         
         .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
             background: var(--primary);
             border: none;
             color: white;
@@ -290,6 +287,38 @@
         
         .copy-btn:hover {
             background: var(--secondary);
+        }
+        
+        #embed-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #embed-modal .modal-content {
+            background: #1a1a2e;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+        }
+        
+        #embed-modal .preview-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        #embed-modal .preview-item {
+            text-align: center;
         }
         
         @media (max-width: 768px) {
@@ -305,6 +334,10 @@
             .vinyl-image {
                 width: 160px;
                 height: 160px;
+            }
+            
+            #embed-modal .preview-container {
+                flex-direction: column;
             }
         }
         
@@ -415,14 +448,8 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="embed-code">
-                        <code>Нормальный: &lt;iframe src="https://ripper666yt.github.io/Aniopsound/player.html?mode=random" width="300" height="400" frameborder="0"&gt;&lt;/iframe&gt;</code>
-                        <button class="copy-btn" onclick="copyRandomEmbedCode('normal')"><i class="fas fa-copy"></i></button>
-                    </div>
-                    <div class="embed-code">
-                        <code>Строчный: &lt;iframe src="https://ripper666yt.github.io/Aniopsound/player.html?mode=random&style=inline" width="600" height="150" frameborder="0"&gt;&lt;/iframe&gt;</code>
-                        <button class="copy-btn" onclick="copyRandomEmbedCode('inline')"><i class="fas fa-copy"></i></button>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="copy-btn" onclick="showEmbedModal(null, 'radio')">Копировать</button>
                     </div>
                 </div>
             </div>
@@ -435,13 +462,35 @@
             </div>
         </section>
     </main>
+    
+    <div id="embed-modal">
+        <div class="modal-content">
+            <h2>Превью</h2>
+            <div class="preview-container">
+                <div class="preview-item">
+                    <h3>Обычное</h3>
+                    <iframe id="preview-normal" width="300" height="510" frameborder="0"></iframe>
+                    <button class="copy-btn" onclick="copyEmbed('normal')">Копировать</button>
+                </div>
+                <div class="preview-item">
+                    <h3>Строчное</h3>
+                    <iframe id="preview-inline" width="500" height="220" frameborder="0"></iframe>
+                    <button class="copy-btn" onclick="copyEmbed('inline')">Копировать</button>
+                </div>
+            </div>
+            <button class="copy-btn" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
 
     <script src="opsound.js"></script>
+    <script src="user-agreement.js"></script>
     <script>
         let currentPlayingAudio = null;
         let randomShuffledSounds = [];
         let randomCurrentIndex = 0;
         let randomPreviousVolume = 0.7;
+        let currentEmbedId = null;
+        let currentEmbedMode = 'single';
 
         // Функция для форматирования времени
         function formatTime(seconds) {
@@ -497,14 +546,8 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="embed-code">
-                        <code>Нормальный: &lt;iframe src="https://ripper666yt.github.io/Aniopsound/player.html?id=${sound.id}" width="300" height="400" frameborder="0"&gt;&lt;/iframe&gt;</code>
-                        <button class="copy-btn" onclick="copyEmbedCode('${sound.id}', 'normal')"><i class="fas fa-copy"></i></button>
-                    </div>
-                    <div class="embed-code">
-                        <code>Строчный: &lt;iframe src="https://ripper666yt.github.io/Aniopsound/player.html?id=${sound.id}&style=inline" width="600" height="150" frameborder="0"&gt;&lt;/iframe&gt;</code>
-                        <button class="copy-btn" onclick="copyEmbedCode('${sound.id}', 'inline')"><i class="fas fa-copy"></i></button>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="copy-btn" onclick="showEmbedModal('${sound.id}')">Копировать</button>
                     </div>
                 </div>
             `;
@@ -590,16 +633,7 @@
             slider.style.background = `linear-gradient(to right, var(--primary) ${slider.value * 100}%, rgba(255,255,255,0.1) ${slider.value * 100}%)`;
         }
 
-        // Copy for individual
-        function copyEmbedCode(soundId, style) {
-            let embedCode = `<iframe src="https://ripper666yt.github.io/Aniopsound/player.html?id=${soundId}" width="300" height="400" frameborder="0"></iframe>`;
-            if (style === 'inline') {
-                embedCode = `<iframe src="https://ripper666yt.github.io/Aniopsound/player.html?id=${soundId}&style=inline" width="600" height="150" frameborder="0"></iframe>`;
-            }
-            navigator.clipboard.writeText(embedCode);
-        }
-
-        // Для рандомного в главной
+        // Для радио
         function randomUpdatePlayer(sound) {
             document.getElementById('random-sound-title').textContent = sound.title;
             document.getElementById('random-vinyl-img').src = sound.image;
@@ -703,12 +737,34 @@
             slider.style.background = `linear-gradient(to right, var(--primary) ${slider.value * 100}%, rgba(255,255,255,0.1) ${slider.value * 100}%)`;
         }
 
-        function copyRandomEmbedCode(style) {
-            let embedCode = `<iframe src="https://ripper666yt.github.io/Aniopsound/player.html?mode=random" width="300" height="400" frameborder="0"></iframe>`;
+        // Modal functions
+        function showEmbedModal(id, mode = 'single') {
+            currentEmbedId = id;
+            currentEmbedMode = mode;
+            const baseUrl = 'https://ripper666yt.github.io/Aniopsound/player.html';
+            let params = mode === 'radio' ? 'mode=radio' : `id=${id}`;
+            document.getElementById('preview-normal').src = `${baseUrl}?${params}`;
+            document.getElementById('preview-inline').src = `${baseUrl}?${params}&style=inline`;
+            document.getElementById('embed-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('embed-modal').style.display = 'none';
+        }
+
+        function copyEmbed(style) {
+            let embedCode;
+            const baseUrl = 'https://ripper666yt.github.io/Aniopsound/player.html';
+            let params = currentEmbedMode === 'radio' ? 'mode=radio' : `id=${currentEmbedId}`;
             if (style === 'inline') {
-                embedCode = `<iframe src="https://ripper666yt.github.io/Aniopsound/player.html?mode=random&style=inline" width="600" height="150" frameborder="0"></iframe>`;
+                params += '&style=inline';
+                embedCode = `<iframe src="${baseUrl}?${params}" width="500" height="220" frameborder="0"></iframe>`;
+            } else {
+                embedCode = `<iframe src="${baseUrl}?${params}" width="300" height="400" frameborder="0"></iframe>`;
             }
-            navigator.clipboard.writeText(embedCode);
+            navigator.clipboard.writeText(embedCode).then(() => {
+                alert('Copied to clipboard!');
+            });
         }
 
         // Инициализация
@@ -764,7 +820,7 @@
                     }
                 });
 
-                // Для рандомного
+                // Для радио
                 randomShuffledSounds = [...soundsData].sort(() => Math.random() - 0.5);
                 randomUpdatePlayer(randomShuffledSounds[randomCurrentIndex]);
 
