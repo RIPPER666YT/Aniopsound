@@ -18,6 +18,3 @@ const soundsData = [
         image: "https://shikimori.one/uploads/poster/animes/37450/837b29e9fa80b3b5ceb771018c8183c8.jpeg"
     }
 ];
-
-
-
