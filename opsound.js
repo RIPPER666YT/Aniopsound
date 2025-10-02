@@ -18,10 +18,17 @@ const soundsData = [
         image: "https://shikimori.one/uploads/poster/animes/37450/837b29e9fa80b3b5ceb771018c8183c8.jpeg"
     },
     {
+        id: "180",
+        title: "Королева со скальпелем",
+        file: "Королева со скальпелем",
+        image: "https://shikimori.one/uploads/poster/animes/54632/27e51b52bfed4065a7a22cf9fe4dddd2.jpeg"
+    },
+    {
         id: "407",
         title: "Добро пожаловать в класс превосходства",
         file: "Добро пожаловать в класс превосходства",
         image: "https://shikimori.one/uploads/poster/animes/35507/3dbd2327437c6ba42483550afc46a5c8.jpeg"
     }
 ];
+
 
