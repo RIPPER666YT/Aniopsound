@@ -12,6 +12,12 @@ const soundsData = [
         image: "https://shikimori.one/uploads/poster/animes/53065/3f2a736b3aa5edf34fa93ff7e6d468c1.jpeg"
     },
     {
+        id: "9",
+        title: "Этот глупый свин не понимает мечту Санта-Клауса",
+        file: "Этот глупый свин не понимает мечту Санта-Клауса",
+        image: "https://shikimori.one/uploads/poster/animes/57433/27e72048c797985ef620f1870a3ee997.jpeg"
+    },
+    {
         id: "12",
         title: "Этот глупый свин не понимает мечту девочки-зайки",
         file: "Этот глупый свин не понимает мечту девочки-зайки",
@@ -30,5 +36,6 @@ const soundsData = [
         image: "https://shikimori.one/uploads/poster/animes/35507/3dbd2327437c6ba42483550afc46a5c8.jpeg"
     }
 ];
+
 
 
